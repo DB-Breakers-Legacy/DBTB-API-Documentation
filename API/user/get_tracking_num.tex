@@ -1,0 +1,66 @@
+%==============================================================================
+\subsubsection{user/get\_tracking\_num}
+%==============================================================================
+\label{subsec:api_user_get_tracking_num}
+
+\paragraph{Request}
+
+\begin{lstlisting}
+POST /000000/api/user/get_tracking_num HTTP/2
+:authority: cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 76
+\end{lstlisting}
+
+The request contained the common user fields and no additional fields.
+
+\begin{lstlisting}
+[
+    {
+        "titleCd": "025348",
+        "userId": "685129260522192549",
+        "session": "6a10adbddb540",
+        "platform": 3
+    },
+    []
+]
+\end{lstlisting}
+
+\paragraph{Response}
+
+\begin{lstlisting}
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 76
+\end{lstlisting}
+
+The response contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+    {
+        "result": 0,
+        "date": "2026/05/22 19:25:50",
+        "session": "6a10adbe3e419"
+    },
+    [
+        0,
+        "LXDA-45J98PDC7NL"
+    ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown = 0
+unknown = "LXDA-45J98PDC7NL"
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+All the values are currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage

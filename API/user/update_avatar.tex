@@ -1,0 +1,82 @@
+%==============================================================================
+\subsubsection{user/update\_avatar}
+%==============================================================================
+\label{subsec:api_user_update_avatar}
+
+\paragraph{Request}
+
+\begin{lstlisting}
+POST /000000/api/user/update_avatar HTTP/2
+:authority: cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 45021
+\end{lstlisting}
+
+The request contained the common user fields and no additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "titleCd": "025348",
+    "userId": "685129260522192549",
+    "session": "6a10ae63857f7",
+    "platform": 3,
+    "version": "09.01"
+  },
+  [
+    "34F9723EBF79B10D0DC9F8DA056F9C4E8B415C7ADA82FC4A93E547E5F..."
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+avatar_data = "34F9723EBF79B10D0DC9F8DA056F9C4E8B415C7ADA82FC4A93E547E5F..."
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+The avatar data is encoded with unknown method.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage
+
+\paragraph{Response}
+
+\begin{lstlisting}
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 80
+\end{lstlisting}
+
+The response contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:28:41",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10ae6996873"
+  },
+  [
+    0
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown = 0
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+The first integer value, $0$, is currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage

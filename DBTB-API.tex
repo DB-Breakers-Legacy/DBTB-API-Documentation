@@ -1,0 +1,301 @@
+% !TEX program = pdflatex
+\documentclass[11pt,a4paper]{article}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+
+\titleformat{\paragraph}
+  {\normalfont\normalsize\bfseries}
+  {\theparagraph}
+  {1em}
+  {}
+
+\titlespacing*{\paragraph}
+  {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    pdftitle={Dragon Ball: The Breakers API services},
+    pdfauthor={}
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    columns=fullflexible,
+    keepspaces=true,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false
+}
+
+\lstdefinestyle{hexdump}{
+    basicstyle=\ttfamily\footnotesize,
+    columns=fixed,
+    keepspaces=true,
+    showstringspaces=false,
+    frame=single,
+    breaklines=false,
+    numbers=none
+}
+
+\lstdefinestyle{hexstream}{
+    basicstyle=\ttfamily\footnotesize,
+    columns=fixed,
+    keepspaces=true,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false
+}
+
+\title{
+    Dragon Ball: The Breakers API services\\
+    \large Bandai Namco backend
+}
+
+\author{IamLupo}
+\date{27-08-2026}
+
+\begin{document}
+
+\include{Abstract}
+
+\tableofcontents
+\newpage
+
+\include{Introduction}
+
+% Structure
+
+\include{Structure/HTTP}
+\include{Structure/MessagePack}
+
+% API
+\include{API/Overview}
+\include{API/Session}
+
+% API Calls
+\section{API Calls}
+
+The observed API calls can be summarized as follows. The following table provides an overview of the
+identified server API endpoints.
+
+% API Calls - System and Account
+\include{API/Calls/System_and_Account}
+\include{API/sys/kpi}
+\include{API/sys/agree_kpi}
+\include{API/sys/check_ngname}
+\include{API/sys/get_env_v3}
+\include{API/user/auth}
+\include{API/user/get_country}
+\include{API/user/get_tracking_num}
+\include{API/user/create_user_info}
+\include{API/user/update_manner_point}
+\include{API/user/get_ban_status}
+\include{API/user/update_avatar}
+
+% API Calls - Bandai Namco ID
+\include{API/Calls/Bandai_Namco_ID}
+\include{API/bnid_reward/grant_reward}
+
+% API Calls - Operational and Administrative Functions
+\include{API/Calls/Operational_and_Administrative_Functions}
+\include{API/regularly_run/get_emergency_message}
+\include{API/close/get_close_info}
+\include{API/adjustment_data_manage/read}
+
+% API Calls - Friends and Social
+\include{API/Calls/Friends_and_Social}
+
+% API Calls - Blocking
+\include{API/Calls/Blocking}
+
+% API Calls - Battle
+\include{API/Calls/Battle}
+\include{API/battle/get_diarkis_matching_server_info}
+\include{API/battle/get_stun_server_info}
+\include{API/battle/get_challenge_list}
+
+% API Calls - Events
+\include{API/Calls/Events}
+\include{API/event/get_schedule_list}
+
+% API Calls - Friend Codes
+\include{API/Calls/Friend_Codes}
+
+% API Calls - Lootbox
+\include{API/Calls/Lootbox}
+\include{API/lootbox/ticket_master_list}
+
+% API Calls - Leaderboard
+\include{API/Calls/Leaderboard}
+\include{API/leaderboard/get_leaderboard_model}
+
+% API Calls - Messages
+\include{API/Calls/Messages}
+\include{API/message/get_message_list}
+
+% API Calls - News
+\include{API/Calls/News}
+\include{API/news/get_3d_model_news}
+
+% API Calls - Character and Cosmetic Data
+\include{API/Calls/Character_and_Cosmetic_Data}
+\include{API/character/get}
+\include{API/character/get_item}
+\include{API/costume/get_list}
+\include{API/victorypose/get_list}
+\include{API/vehicleskin/get_list}
+\include{API/avatar_create/get_list}
+
+% API Calls - Transball and Skills
+\include{API/Calls/Transball_and_Skills}
+\include{API/transball/get_list}
+
+% API Calls - Rival and Patroller Systems
+\include{API/Calls/Rival_and_Patroller_Systems}
+\include{API/rival/get_list}
+\include{API/patroller/get_status}
+
+% API Calls - Player and Economy
+\include{API/Calls/Player_and_Economy}
+\include{API/gamecurrency/get_owned}
+\include{API/item/item_possession}
+
+% API Calls - Season
+\include{API/Calls/Season}
+
+% API Calls - Shop
+\include{API/Calls/Shop}
+
+% API Calls - Common Purchase
+\include{API/Calls/Common_Purchase}
+\include{API/commonpurchase/get_purchase_status}
+
+%==============================================================================
+\section{End-to-End Request Sequence}
+%==============================================================================
+
+Combining the observed calls gives the following approximate application
+sequence:
+
+\begin{lstlisting}
+1. /000000/api/user/auth
+       |
+       | authentication
+       v
+   session established
+       |
+       v
+2. /000000/api/user/get_country
+       |
+       | country lookup
+       v
+   "GB"
+       |
+       v
+3. /000000/api/user/get_tracking_num
+       |
+       | tracking number retrieval
+       v
+   "LXDA-45J98PDC7NL"
+       |
+       v
+4. /025348/api/close/get_close_info
+       |
+       | language = "en"
+       v
+   close/status configuration
+       |
+       v
+5. /025348/api/user/create_user_info
+       |
+       | country = "GB"
+       | language = "en"
+       | Steam ID
+       v
+   user information processing
+       |
+       v
+6. /025348/api/adjustment_data_manage/read
+       |
+       | no endpoint arguments
+       v
+   56,327-byte adjustment-data blob
+\end{lstlisting}
+
+The exact ordering shown here follows the sequence of captures supplied for
+analysis; it should not be interpreted as a complete application startup
+state machine.
+
+\newpage
+
+%==============================================================================
+\section{Conclusions}
+%==============================================================================
+
+The packet captures establish a coherent HTTP/2 MessagePack application
+protocol.
+
+The most significant properties are:
+
+\begin{enumerate}
+    \item All observed API operations use HTTP/2 \texttt{POST}.
+    \item The APIs are transported over HTTPS\@.
+    \item MessagePack is used for the application data.
+    \item Requests use a recurring client context containing title, user,
+          session, and platform information.
+    \item Game-specific requests additionally contain a version field.
+    \item Endpoint-specific arguments are represented as a second array.
+    \item Successful responses use HTTP status \texttt{200}.
+    \item Responses contain a common result/date/session metadata object.
+    \item The session value evolves across successive requests.
+    \item The country API returns \texttt{GB}.
+    \item The tracking-number API returns
+          \texttt{LXDA-45J98PDC7NL}.
+    \item The user-information API supplies country, language, and Steam ID\@.
+    \item The close-information API accepts a language argument of
+          \verb|"en"|.
+    \item The adjustment-data API returns an opaque 56,327-byte encoded
+          string inside a 56,411-byte MessagePack response.
+\end{enumerate}
+
+The resulting high-level protocol can therefore be summarized as:
+
+\begin{lstlisting}
+Client
+  |
+  | POST /endpoint
+  | common MessagePack context
+  | endpoint arguments
+  v
+Server
+  |
+  | 200 OK
+  | result metadata
+  | updated session
+  | endpoint-specific data
+  v
+Client
+\end{lstlisting}
+
+\include{Reverse_engineering/Executable}
+
+\end{document}

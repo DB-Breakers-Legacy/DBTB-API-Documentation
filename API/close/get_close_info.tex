@@ -1,0 +1,135 @@
+%==============================================================================
+\subsubsection{close/get\_close\_info}
+%==============================================================================
+\label{subsec:api_close_get_close_info}
+
+\paragraph{Request}
+
+The request was sent to a different host:
+
+\begin{lstlisting}
+POST /025348/api/close/get_close_info HTTP/2
+:authority: dbtb-prd.cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 93
+\end{lstlisting}
+
+The request contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "titleCd": "025348",
+    "userId": "685129260522192549",
+    "session": "6a10adbe3e419",
+    "platform": 3,
+    "version": "09.01"
+  },
+  [
+    "en"
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+language = "en"
+\end{lstlisting}
+
+\newpage
+
+\paragraph{Response}
+
+\begin{lstlisting}
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 177
+\end{lstlisting}
+
+The response contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:25:50",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10adbecae8c"
+  },
+  [
+    0,
+    "",
+    [
+      [
+        1,
+        "2100-01-01 07:00:00"
+      ],
+      [
+        2,
+        "2100-01-01 07:15:00"
+      ],
+      [
+        3,
+        "2100-01-01 07:25:00"
+      ],
+      [
+        4,
+        "2125-07-01 00:00:00"
+      ]
+    ],
+    [],
+    [
+      0,
+      "",
+      "",
+      0,
+      ""
+    ]
+  ]
+]
+\end{lstlisting}
+
+\newpage
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown = 0
+unknown = ""
+unknown = [
+    [
+    1,
+    "2100-01-01 07:00:00"
+    ],
+    [
+    2,
+    "2100-01-01 07:15:00"
+    ],
+    [
+    3,
+    "2100-01-01 07:25:00"
+    ],
+    [
+    4,
+    "2125-07-01 00:00:00"
+    ]
+]
+unknown = []
+unknown = [
+    0,
+    "",
+    "",
+    0,
+    ""
+]
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+All the values are currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage

@@ -1,0 +1,94 @@
+%==============================================================================
+\section{Structures}
+%==============================================================================
+
+%==============================================================================
+\subsection{HTTP}
+%==============================================================================
+
+
+All observed application requests are HTTP/2 \texttt{POST} requests.
+
+\subsubsection{Request}
+
+The common request headers are:
+
+\begin{lstlisting}
+:method: POST
+:path: <endpoint>
+:scheme: https
+:authority: <server>
+user-agent: Valve/Steam HTTP Client 1.0 (1276760)
+content-type: application/x-www-form-urlencoded
+accept: text/html,*/*;q=0.9
+accept-encoding: gzip,identity,*;q=0
+accept-charset: ISO-8859-1,utf-8,*;q=0.7
+content-length: <request length>
+\end{lstlisting}
+
+\subsubsection{Response}
+
+The response headers generally contain:
+
+\begin{lstlisting}
+:status: 200
+server: nginx
+date: <server date>
+content-type: application/x-messagepack; charset=utf-8
+content-length: <response length>
+access-control-allow-origin: *
+via: 1.1 google
+alt-svc: h3=":443"; ma=2592000
+\end{lstlisting}
+
+The use of:
+
+\begin{lstlisting}
+content-type: application/x-messagepack; charset=utf-8
+\end{lstlisting}
+
+on the response explicitly identifies MessagePack as the application
+serialization format.
+
+\newpage
+
+\subsubsection{Exception}
+
+Although the HTTP request header uses:
+
+\begin{lstlisting}
+content-type: application/x-www-form-urlencoded
+\end{lstlisting}
+
+the captured request DATA is MessagePack encoded.
+
+Conversely, the server explicitly reports:
+
+\begin{lstlisting}
+content-type: application/x-messagepack; charset=utf-8
+\end{lstlisting}
+
+in responses.
+
+Consequently, the effective application protocol is:
+
+\begin{lstlisting}
+HTTP/2 POST
+    |
+    +-- request headers
+    |
+    +-- MessagePack DATA
+    |
+    v
+Server
+    |
+    +-- HTTP/2 response headers
+    |
+    +-- MessagePack DATA
+\end{lstlisting}
+
+The request-side content type therefore appears to describe the transport
+interface expected by the original client rather than the actual encoding
+of the captured application body.
+
+\newpage

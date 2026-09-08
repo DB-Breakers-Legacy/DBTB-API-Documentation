@@ -1,0 +1,79 @@
+%==============================================================================
+\subsubsection{user/get\_ban\_status}
+%==============================================================================
+\label{subsec:api_user_get_ban_status}
+
+\paragraph{Request}
+
+Observed request:
+
+\begin{lstlisting}
+POST /000000/api/user/get_ban_status HTTP/2
+:authority: cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 90
+\end{lstlisting}
+
+The request contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "titleCd": "025348",
+    "userId": "685129260522192549",
+    "session": "6a10ae571899e",
+    "platform": 3,
+    "version": "09.01"
+  },
+  []
+]
+\end{lstlisting}
+
+\newpage
+
+\paragraph{Response}
+
+The response was:
+
+\begin{lstlisting}
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 82
+\end{lstlisting}
+
+The response contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:28:25",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10ae5954d8c"
+  },
+  [
+    0,
+    0,
+    0
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown = 0
+unknown = 0
+unknown = 0
+\end{lstlisting}
+
+The client will set he UserId to its session in future requests.
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+The unknown values are currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage

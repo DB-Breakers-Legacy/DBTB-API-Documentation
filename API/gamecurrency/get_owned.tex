@@ -1,0 +1,81 @@
+%==============================================================================
+\subsubsection{gamecurrency/get\_owned}
+%==============================================================================
+\label{subsec:api_gamecurrency_get_owned}
+
+\paragraph{Request}
+
+\begin{lstlisting}
+POST /025348/api/gamecurrency/get_owned HTTP/2
+:authority: dbtb-prd.cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 90
+\end{lstlisting}
+
+The request contained the common user fields and without any additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "titleCd": "025348",
+    "userId": "685129260522192549",
+    "session": "6a10adeb054c5",
+    "platform": 3,
+    "version": "09.01"
+  },
+  []
+]
+\end{lstlisting}
+
+\newpage
+
+\paragraph{Response}
+
+The response headers are:
+
+\begin{lstlisting}
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 86
+\end{lstlisting}
+
+The response contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:26:35",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10adebc44fe"
+  },
+  [
+    0,
+    0,
+    0,
+    "",
+    0,
+    "0"
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown  = 0
+unknown  = 0
+unknown  = 0
+unknown  = ""
+unknown  = 0
+unknown  = "0"
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+All values are currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage

@@ -1,0 +1,188 @@
+\section{Reverse engineering}
+
+\subsection{Executable}
+
+\subsubsection{API}
+
+\paragraph{Class Architecture}
+
+Reverse engineering of the executable reveals a systematic family of
+request and response classes.
+
+A typical request entry has the following conceptual structure:
+
+\begin{lstlisting}
+.rdata
+    RTTI Complete Object Locator
+    vftable
+        virtual function
+        virtual function
+        ...
+    "ServerApiRequest<Operation>"
+    "<api endpoint>"
+\end{lstlisting}
+
+For example, the executable contains:
+
+\begin{lstlisting}
+ServerApiRequestGetEnvironmentV3
+        |
+        +-- "ServerApiRequestGetEnvironmentV3"
+        |
+        +-- "sys/get_env_v3"
+\end{lstlisting}
+
+and the corresponding response:
+
+\begin{lstlisting}
+ServerApiResponseGetEnvironmentV3
+        |
+        +-- "ServerApiResponseGetEnvironmentV3"
+\end{lstlisting}
+
+This provides a useful relationship:
+
+\begin{equation}
+\text{Request Class}
+\longleftrightarrow
+\text{API Endpoint}
+\longleftrightarrow
+\text{Response Class}
+\end{equation}
+
+The class names and route strings are consequently useful for reconstructing
+the logical API surface even when the detailed field layouts have not yet
+been recovered.
+
+The captures provide enough information to reconstruct the HTTP/2 and
+MessagePack framing for the observed calls.  The remaining unknowns are
+primarily the semantic definitions of some endpoint-specific fields and
+the internal format of the large adjustment-data blob.
+
+The following table lists the request classes, endpoint strings, and matching
+response classes recovered from the executable material.
+
+\newpage
+
+\paragraph{Class list}
+
+\small
+\begin{longtable}{p{0.04\textwidth} p{0.31\textwidth} p{0.29\textwidth} p{0.31\textwidth}}
+\toprule
+\# & Operation & API Endpoint \\
+\midrule
+\endfirsthead
+
+\toprule
+\# & Operation & API Endpoint \\
+\midrule
+\endhead
+
+1   & GetAvatarCreatePartsList & \texttt{avatar\_create/get\_list} \\
+2   & GetBattleMemberResult & \texttt{battle/get\_battle\_member\_result\_list} \\
+3   & GetChallengeList & \texttt{battle/get\_challenge\_list} \\
+4   & GetConnectionServerInfo & \texttt{battle/get\_connection\_server\_info} \\
+5   & GetDiarkisMatchingServerInfo & \texttt{battle/get\_diarkis\_matching\_server\_info} \\
+6   & GetStunServerInfo & \texttt{battle/get\_stun\_server\_info} \\
+7   & BattleResult & \texttt{battle/result} \\
+8   & SaveMatchingCache & \texttt{battle/save\_matching\_cache} \\
+9   & BattleStart & \texttt{battle/start} \\
+10  & ConsumePriorityPoint & \texttt{battle/consume\_priority\_point} \\
+11  & OrientationBattleResult & \texttt{battle/orientation\_result} \\
+12  & OrientationBattleStart & \texttt{battle/orientation\_start} \\
+13  & PreMatchingConnection & \texttt{battle/pre\_matching\_connection} \\
+14  & PracticeBattleResult & \texttt{battle/practice\_result} \\
+15  & PracticeBattleStart & \texttt{battle/practice\_start} \\
+16  & AddBlockUser & \texttt{block/add\_block\_user} \\
+17  & DeleteBlockUser & \texttt{block/delete\_block\_user} \\
+18  & GetBlockList & \texttt{block/get\_block\_list} \\
+19  & GetCloseInfo & \texttt{close/get\_close\_info} \\
+20  & GetFundSettlement & \texttt{commonpurchase/get\_fund\_settlement\_text} \\
+21  & GetPurchaseCatalog & \texttt{commonpurchase/get\_catalog} \\
+22  & GetPurchaseStatus & \texttt{commonpurchase/get\_purchase\_status} \\
+23  & CompletePurchase & \texttt{commonpurchase/complete\_purchase} \\
+24  & CancelPurchase & \texttt{commonpurchase/cancel\_purchase} \\
+25  & StartPurchase & \texttt{commonpurchase/start\_purchase} \\
+26  & ShowFundSettlement & \texttt{commonpurchase/get\_fund\_settlement\_text} \\
+27  & ShowTokusho & \texttt{commonpurchase/tokusho} \\
+28  & GetCostumeList & \texttt{costume/get\_list} \\
+29  & ShowBattleSettings & \texttt{character/get} \\
+30  & ShowCharacterVisual & \texttt{character/get\_item} \\
+31  & GetEventDragonTierInfo & \texttt{event\_tier/get\_event\_tier\_info} \\
+32  & ReceiveEventTierReward & \texttt{event\_tier/earn\_tier\_reward} \\
+33  & CreateFriendCode & \texttt{friend\_code/create\_friend\_code} \\
+34  & InputFriendCode & \texttt{friend\_code/enter\_friend\_code} \\
+35  & AcceptFriendOrder & \texttt{friend/accept\_friend\_request} \\
+36  & DeleteFriend & \texttt{friend/delete\_friend} \\
+37  & GetFriendList & \texttt{friend/get\_friend\_list} \\
+38  & GetPlatformFriendList & \texttt{friend/get\_platform\_friend} \\
+39  & ChangeFriendStatus & \texttt{friend/update\_favorite\_status} \\
+40  & SendFriendOrder & \texttt{friend/send\_friend\_request} \\
+41  & GetTpToken & \texttt{gamecurrency/get\_owned} \\
+42  & UpdateSocialOption & \texttt{game\_setting/update\_user\_setting} \\
+43  & GetIntroDemoList & \texttt{intro\_demo/get\_list} \\
+44  & PossessionPurchaseItem & \texttt{item/item\_possession} \\
+45  & GetGashaList & \texttt{lootbox/get\_transball\_list} \\
+46  & GetGashaLineup & \texttt{lootbox/get\_transball\_probability} \\
+47  & ExecuteGasha & \texttt{lootbox/run\_transball} \\
+48  & GetGashaTicketMasterList & \texttt{lootbox/ticket\_master\_list} \\
+49  & GetGashaTicketList & \texttt{lootbox/user\_ticket\_list} \\
+50  & GetMessageDetail & \texttt{message/get\_message\_info} \\
+51  & GetMessageList & \texttt{message/get\_message\_list} \\
+52  & ReceiveMessageItem & \texttt{message/update\_message\_item\_received} \\
+53  & GetNewsBoardTexture & \texttt{news/get\_3d\_model\_news} \\
+54  & GetNewsTextureList & \texttt{news/get\_2d\_ui\_news\_list} \\
+55  & GetNonCombatCharacterList & \texttt{noncombat\_chara\_skin/get\_list} \\
+56  & RegistPlayedWithPlayer & \texttt{player/upload\_ghost\_player} \\
+57  & GetPatrollerSkillList & \texttt{skill/get\_skill\_list} \\
+58  & ExecuteSkillTraining & \texttt{skill/training} \\
+59  & GetSelectableBattleStage & \texttt{season/get\_selectable\_stage} \\
+60  & GetDragonPassInfo & \texttt{season/get\_dragon\_pass\_info} \\
+61  & BuyTier & \texttt{season/tier\_up\_using\_tp} \\
+62  & ReceiveTierReward & \texttt{season/earn\_dragon\_pass\_reward} \\
+63  & GetShopCategoryList & \texttt{shop/get\_category\_list} \\
+64  & GetShopCategoryDetail & \texttt{shop/get\_info\_category} \\
+65  & GetShopSpecialCategoryDetail & \texttt{shop/get\_info\_special\_category} \\
+66  & BuyShopItem & \texttt{shop/payment} \\
+67  & InputSerialCode & \texttt{serial\_code/get\_serial\_code\_item} \\
+68  & AgreeKPI & \texttt{sys/agree\_kpi} \\
+69  & CheckNgName & \texttt{sys/check\_ngname} \\
+70  & GetEnvironmentV3 & \texttt{sys/get\_env\_v3} \\
+71  & KPI & \texttt{sys/kpi} \\
+72  & ExecuteUnlockSpAttack & \texttt{transball/unlock\_spattack} \\
+73  & GetTransballReleaseDateList & \texttt{transball/get\_all\_chara} \\
+74  & GetTransballList & \texttt{transball/get\_list} \\
+75  & GetBannStatus & \texttt{user/get\_ban\_status} \\
+76  & GetCountryCode & \texttt{user/get\_country} \\
+77  & CreateUser & \texttt{user/create\_user\_info} \\
+78  & GetUserTrackingNumber & \texttt{user/get\_tracking\_num} \\
+79  & UpdateAvatarThumbnailImage & \texttt{user/update\_avatar} \\
+80  & UpdateMannerPoint & \texttt{user/update\_manner\_point} \\
+81  & UpdateOrientationStep & \texttt{user/update\_orientation\_step} \\
+82  & UserAuth & \texttt{user/auth} \\
+83  & GetVehicleSkinList & \texttt{vehicleskin/get\_list} \\
+84  & GetVictoryPoseList & \texttt{victorypose/get\_list} \\
+85  & GetScheduleEventList & \texttt{event/get\_schedule\_list} \\
+86  & GetEpisodeReward & \texttt{episode/earn\_episode\_reward} \\
+87  & GetRivalList & \texttt{rival/get\_list} \\
+88  & ExecuteRivalSkillReset & \texttt{rival/skill\_reset} \\
+89  & ExecuteRivalSkillTraining & \texttt{rival/training} \\
+90  & CheckBnidLinkStatus & \texttt{bnid\_client/check\_status} \\
+91  & GetBnidLinkURL & \texttt{bnid\_client/entry} \\
+92  & EraseBnidLink & \texttt{bnid\_client/erase} \\
+93  & GetBnidLinkReward & \texttt{bnid\_reward/grant\_reward} \\
+94  & GetOnlineBattleData & \texttt{adjustment\_data\_manage/read} \\
+95  & GetOnlineBattleDataVersion & \texttt{adjustment\_data\_manage/get\_version} \\
+96  & CheckMaintenance & \texttt{regularly\_run/regularly\_maintenance\_check} \\
+97  & GetEmergencyMessage & \texttt{regularly\_run/get\_emergency\_message} \\
+98  & UnfairPlayReport & \texttt{report/report} \\
+99  & GetEpisodeReward & \texttt{episode/earn\_episode\_reward} \\
+100 & GetStampList & \texttt{stamp/get\_list} \\
+101 & GetEmotionList & \texttt{emotion/get\_list} \\
+102 & GetTpToken & \texttt{gamecurrency/get\_owned} \\
+103 & GetLeaderBoard & \texttt{leaderboard/get\_leaderboard} \\
+104 & GetLeaderBoardGroup & \texttt{leaderboard/get\_leaderboard\_group\_list} \\
+
+\bottomrule
+\end{longtable}
+\normalsize

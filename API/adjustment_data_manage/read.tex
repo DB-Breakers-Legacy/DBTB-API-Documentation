@@ -1,0 +1,120 @@
+%==============================================================================
+\subsubsection{adjustment\_data\_manage/read}
+%==============================================================================
+\label{subsec:api_adjustment_data_manage_read}
+
+\paragraph{Request}
+
+\begin{lstlisting}
+POST /025348/api/adjustment_data_manage/read HTTP/2
+:authority: dbtb-prd.cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 90
+\end{lstlisting}
+
+The request contained the common user fields and no additional fields.
+
+\begin{lstlisting}
+[
+    {
+        "titleCd": "025348",
+        "userId": "685129260522192549",
+        "session": "6a10adbf368d5",
+        "platform": 3,
+        "version": "09.01"
+    },
+    []
+]
+\end{lstlisting}
+
+\newpage
+
+\paragraph{Response}
+
+The response headers are:
+
+\begin{lstlisting}
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 56411
+\end{lstlisting}
+
+The response contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:26:09",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10add143ef7"
+  },
+  [
+    0,
+    2,
+    "T0JEOi6kl9BkRCHhvs ... <More data>"
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown  = 0
+unknown  = 2
+payload  = "T0JEOi6kl9BkRCHhvs ... <More data>"
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+All the values are currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage
+
+\paragraph{Payload}
+
+The payload is composed almost entirely of printable ASCII
+characters.
+
+Examples from the capture include:
+
+\begin{lstlisting}
+T0JEOi6kl9BkRCHhvs-SEnG9ivUPaBK8bGTdTszz_-H86_aBA4a...
+\end{lstlisting}
+
+and highly repetitive sequences such as:
+
+\begin{lstlisting}
+O2ja96M7aNr3ozto2vejO2ja96M7aNr3ozto2vej...
+\end{lstlisting}
+
+The observed character set includes:
+
+\begin{lstlisting}
+A-Z
+a-z
+0-9
+-
+_
+\end{lstlisting}
+
+This resembles an ASCII-safe or Base64URL-like representation.
+
+However, the packet capture alone does not establish that the data is
+standard Base64URL\@.  It may instead represent:
+
+\begin{enumerate}[nosep]
+    \item compressed application data encoded into ASCII,
+    \item a custom game serialization,
+    \item a custom binary-to-text representation,
+    \item encrypted or obfuscated data,
+    \item or a combination of the above.
+\end{enumerate}
+
+Therefore, this paper treats the field as an
+\emph{opaque 56,327-byte encoded data blob}.
+
+\newpage

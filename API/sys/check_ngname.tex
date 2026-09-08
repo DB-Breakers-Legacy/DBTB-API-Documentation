@@ -1,0 +1,88 @@
+%==============================================================================
+\subsubsection{sys/check\_ngname}
+%==============================================================================
+\label{subsec:api_sys_check_ngname}
+
+\paragraph{Request}
+
+Observed request:
+
+\begin{lstlisting}
+POST /000000/api/sys/check_ngname HTTP/2
+:authority: cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 98
+\end{lstlisting}
+
+The request contained the common user fields and with additional fields.
+
+\begin{lstlisting}
+[
+  {
+    "titleCd": "025348",
+    "userId": "685129260522192549",
+    "session": "6a10ae05aa7aa",
+    "platform": 3,
+    "version": "09.01"
+  },
+  [
+    "Test",
+    "en"
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown         = "Test"
+language        = "en"
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+The first value is currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage
+
+\paragraph{Response}
+
+The response was:
+
+\begin{lstlisting}
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 80
+\end{lstlisting}
+
+The response contained the common user fields and with additional field.
+
+\begin{lstlisting}
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:27:25",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10ae1cd34a6"
+  },
+  [
+    0
+  ]
+]
+\end{lstlisting}
+
+The endpoint-specific information includes:
+
+\begin{lstlisting}
+unknown         = 0
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!10,colframe=orange!80!black,title=Warning]
+The first integer value, $0$, is currently of unknown purpose.
+Further research is required to determine its intended use.
+\end{tcolorbox}
+
+\newpage
