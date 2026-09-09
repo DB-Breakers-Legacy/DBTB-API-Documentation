@@ -1,0 +1,120 @@
+#### transball/get_list
+
+<a id="subsec:api_transball_get_list"></a>
+
+##### Request
+
+```text
+POST /025348/api/transball/get_list HTTP/2
+:authority: dbtb-prd.cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 90
+```
+
+The request contained the common user fields and with additional fields.
+
+```text
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:28:41",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10ae6996873"
+  },
+  [
+    0
+  ]
+]
+```
+
+The endpoint-specific information includes:
+
+```text
+unknown  = 0
+```
+
+> [!WARNING]
+> **Warning**
+>
+> The first value is currently of unknown purpose.
+> Further research is required to determine its intended use.
+
+##### Response
+
+The response headers are:
+
+```text
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 585
+```
+
+The response contained the common user fields and with additional fields.
+
+```text
+[
+  {
+    "result": 0,
+    "date": "2026/08/27 06:45:19",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a8fdcff91953"
+  },
+  [
+    0,
+    [
+      [
+		1,"2026-08-27 06:43:24",
+        [[1,"2026-08-27 06:43:24"]],
+        [[4,"2026-08-27 06:43:24"]],
+        [[3200000,"2026-08-27 06:43:24"]],
+        []
+      ],
+      [
+        4,"2026-08-27 06:43:24",
+        [[1,"2026-08-27 06:43:24"]],
+        [[1,"2026-08-27 06:43:24"]],
+        [[3210100,"2026-08-27 06:43:24"]],
+        []
+      ],
+      [
+        5,"2026-08-27 06:43:24",
+        [[1,"2026-08-27 06:43:24"]],
+        [[2,"2026-08-27 06:43:24"]],
+        [[3130900,"2026-08-27 06:43:24"]],
+        []
+      ],
+      ...
+    ]
+  ]
+]
+```
+
+The endpoint-specific information includes:
+
+```text
+unknown       = 0
+transballs = [
+    [
+		unknown = 1
+        unknown = "2026-08-27 06:43:24",
+        unknown = [[1,"2026-08-27 06:43:24"]],
+        unknown = [[4,"2026-08-27 06:43:24"]],
+        unknown = [[3200000,"2026-08-27 06:43:24"]],
+        unknown = []
+    ],
+    ...
+]
+```
+
+> [!WARNING]
+> **Warning**
+>
+> Most of the values are currently of unknown purpose.
+> Further research is required to determine its intended use.
+
+---
+
+[Back to document map](../../README.md)

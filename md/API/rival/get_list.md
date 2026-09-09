@@ -1,0 +1,138 @@
+#### rival/get_list
+
+<a id="subsec:api_rival_get_list"></a>
+
+##### Request
+
+The request was sent to a different host:
+
+```text
+POST /025348/api/rival/get_list HTTP/2
+:authority: dbtb-prd.cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 90
+```
+
+The request contained the common user fields and without any additional fields.
+
+```text
+[
+  {
+    "titleCd": "025348",
+    "userId": "685129260522192549",
+    "session": "6a10adebc44fe",
+    "platform": 3,
+    "version": "09.01"
+  },
+  []
+]
+```
+
+##### Response
+
+```text
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 380
+```
+
+The response contained the common user fields and with additional fields.
+
+```text
+[
+  {
+    "result": 0,
+    "date": "2026/05/22 19:26:36",
+    "version": "09.01",
+    "flag": "0",
+    "session": "6a10adec09187"
+  },
+  [
+    0,
+    [
+      [
+        100, 1, 0, 0,
+        [
+          [80000, 0],
+          [80010, 0],
+          [80020, 0],
+          [80030, 0]
+        ],
+        [
+          [180000, 0],
+          [180010, 0],
+          [180020, 0],
+          [180030, 0]
+        ],
+        [
+          1002001,
+          1002005,
+          1003004,
+          1003007,
+          1004001,
+          1004002
+        ]
+      ],
+      [
+        200, 1, 0, 0,
+        [
+          [80100, 0],
+          [80110, 0],
+          [80120, 0],
+          [80130, 0]
+        ],
+        [
+          [180100, 0],
+          [180110, 0],
+          [180120, 0],
+          [180130, 0]
+        ],
+        [
+          2001000,
+          2001010,
+          2002000,
+          2003000,
+          2004000,
+          2004005
+        ]
+      ],
+      [
+        300,1, 0, 0,
+        [
+          [80200, 0],
+          [80210, 0],
+          [80220, 0],
+          [80230, 0],
+          [80240, 0],
+          [80250, 0]
+        ],
+        [
+          [180200, 0],
+          [180210, 0],
+          [180220, 0],
+          [180230, 0]
+        ],
+        [
+          3001001,
+          3002000,
+          3002014,
+          3003000,
+          3003006,
+          3004000
+        ]
+      ]
+    ]
+  ]
+]
+```
+
+> [!WARNING]
+> **Warning**
+>
+> All the values are currently of unknown purpose.
+> Further research is required to determine its intended use.
+
+---
+
+[Back to document map](../../README.md)

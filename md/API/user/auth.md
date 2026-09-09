@@ -1,0 +1,118 @@
+#### user/auth
+
+<a id="subsec:api_user_auth"></a>
+
+##### Request
+
+Observed request:
+
+```text
+POST /000000/api/user/auth HTTP/2
+:authority: cosmos.channel.or.jp
+content-type: application/x-www-form-urlencoded
+content-length: 547
+```
+
+The request contained the common user fields and with additional fields.
+
+```text
+[
+  {
+    "titleCd": "025348",
+    "userId": "",
+    "session": "",
+    "platform": 3
+  },
+  [
+    "76561198699994862",
+    "14000000167B1B601A3B52DEEE5E172C
+	01001001A0AD106A1800000001000000
+	02000000AE7C4377DC43E19E8E120300
+	02000000B80000003800000004000000
+	EE5E172C01001001587B1300E7EF2BD9
+	CA01A8C002000000A1AD106A215D2C6A
+	0100706A0B0001006C1E1B0000000000
+	8B5C28653F02A55FA15FF261944218EC
+	1E067826FF6E844F9110A783FCD9584C
+	27466EEF8ABD94BA34B29A4DA7A8690D
+	6E1AC24BD339942340FE86DD31B2E89E
+	21EB1F099E57097ACAE47D3800E8C825
+	787327D09E75DA6B132D7C07A211AC88
+	4A399BC751D9CE7B6DB494CC6FBA2980
+	27743BEA0CB679254F902F5E615CCCC6",
+    0
+  ]
+]
+```
+
+The endpoint-specific information includes:
+
+```text
+steam_id   = "76561198699994862"
+steam_auth = "14000000167B1B601A3B52DEEE5E172C..."
+unknown    = 0
+```
+
+> [!WARNING]
+> **Warning**
+>
+> The Steam authentication data is unknown how this is been generated and how the API server can check.
+> This need further research how this data can be validated.
+
+> [!WARNING]
+> **Warning**
+>
+> The third integer value, $0$, is currently of unknown purpose.
+> Further research is required to determine its intended use.
+
+##### Response
+
+The response was:
+
+```text
+HTTP/2 200 OK
+
+content-type: application/x-messagepack; charset=utf-8
+content-length: 80
+```
+
+The response contained the common user fields and with additional fields.
+
+```text
+[
+    {
+        "result": 0,
+        "date": "2026/05/22 19:25:49",
+        "session": "6a10adbd65aec"
+    },
+    [
+        0,
+        [
+            "685129260522192549",
+            1
+        ]
+    ]
+]
+```
+
+The endpoint-specific information includes:
+
+```text
+unknown = 0
+info = [
+    user_id   = "685129260522192549"
+    unknown   = 1
+]
+```
+
+The client will set he UserId to its session in future requests.
+
+> [!WARNING]
+> **Warning**
+>
+> The unknown values are currently of unknown purpose.
+> Further research is required to determine its intended use.
+
+---
+
+[Back to document map](../../README.md)

@@ -1,0 +1,122 @@
+### MessagePack
+
+#### Example
+
+MessagePack data is been encode to binary data and decoded to json data.
+
+This is how a HTTP packet would look like with MessagePack data inside:
+
+```text
+0000   00 00 23 01 04 00 00 00 05 83 04 94 60 00 00 00   ..#.........`...
+0010   06 07 59 98 b5 05 b1 89 8a 98 88 7b 6a 4d 9e bf   ..Y........{jM..
+0020   87 c3 c2 c1 c0 bf be 0f 0d 02 37 36 00 00 4c 00   ..........76..L.
+0030   01 00 00 00 05 92 84 a7 74 69 74 6c 65 43 64 a6   ........titleCd.
+0040   30 32 35 33 34 38 a6 75 73 65 72 49 64 b2 36 38   025348.userId.68
+0050   35 31 32 39 32 36 30 35 32 32 31 39 32 35 34 39   5129260522192549
+0060   a7 73 65 73 73 69 6f 6e ad 36 61 31 30 61 64 62   .session.6a10adb
+0070   64 36 35 61 65 63 a8 70 6c 61 74 66 6f 72 6d 03   d65aec.platform.
+0080   90                                                .
+```
+
+The binairy MessagePack data starts at 0x92.
+
+You can copy this data as a hex stream in wireshark as example:
+
+```text
+9284a77469746c654364a6303235333438a6757365724964b236383531323932
+3630353232313932353439a773657373696f6ead366131306164626436356165
+63a8706c6174666f726d0390
+```
+
+And you can decode it to:
+
+```text
+[
+  {
+    "titleCd": "025348",
+    "userId": "685129260522192549",
+    "session": "6a10adbd65aec",
+    "platform": 3
+  },
+  []
+]
+```
+
+> [!NOTE]
+> **Info**
+>
+> You can use this online tool to decode MessagePack data: https://ref45638.github.io/msgpack-converter/
+
+#### Request
+
+A recurring request object was observed throughout the API.
+
+The general form is:
+
+```text
+[
+    {
+        "titleCd": "...",
+        "userId": "...",
+        "session": "...",
+        "platform": 3,
+        "version": "09.01"
+    },
+    <endpoint-specific arguments>
+]
+```
+
+Not every request contains the `version` member.  The earlier
+`/000000/` system and user APIs use a smaller common object.
+
+For example:
+
+```text
+[
+    {
+        "titleCd": "025348",
+        "userId": "685129260522192549",
+        "session": "6a10adb...",
+        "platform": 3
+    },
+    []
+]
+```
+
+For the game-specific `/025348/` APIs, the observed common object is:
+
+```text
+[
+    {
+        "titleCd": "025348",
+        "userId": "685129260522192549",
+        "session": "6a10ad...",
+        "platform": 3,
+        "version": "09.01"
+    },
+    []
+]
+```
+
+The second element of the outer array contains endpoint-specific arguments.
+Several endpoints use an empty array, indicating that no additional
+endpoint arguments were necessary in those requests.
+
+#### Response
+
+The observed responses share a common outer structure:
+
+```text
+[
+    {
+        "result": 0,
+        "date": "...",
+        ...
+    },
+    <endpoint-specific data>
+]
+```
+
+---
+
+[Back to document map](../README.md)
