@@ -19,9 +19,11 @@
 
 - [Structures](Structure/HTTP.md)
 - [MessagePack](Structure/MessagePack.md)
+- [Diarkis UDP/RUDP wire protocol](Structure/Diarkis.md)
 
 - [API](API/Overview.md)
 - [Session](API/Session.md)
+- [Matchmaking flow — end-to-end call order](API/Calls/Matchmaking_Flow.md)
 
 ## API Calls
 

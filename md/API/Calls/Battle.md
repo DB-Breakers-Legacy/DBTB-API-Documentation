@@ -1,5 +1,7 @@
 ### Battle
 
+How these calls interleave with the Diarkis UDP session: [Matchmaking flow — end-to-end call order](Matchmaking_Flow.md). Wire protocol: [Structure/Diarkis.md](../../Structure/Diarkis.md).
+
 | Endpoint | Function description |
 | --- | --- |
 | [battle/get_diarkis_matching_server_info](../battle/get_diarkis_matching_server_info.md#subsec:api_battle_get_diarkis_matching_server_info) | Diarkis matching-server information |
