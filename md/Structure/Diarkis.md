@@ -1,14 +1,5 @@
 # Diarkis UDP/RUDP wire protocol
 
-> [!IMPORTANT]
-> 2026-09-18: the matchmaking captures are now decrypted end-to-end with a TLS
-> keylog captured alongside the traffic — HTTPS API bodies and the Diarkis UDP
-> sessions (both the matchmaking server and the session host). The earlier
-> conclusion that historic captures are undecryptable is superseded for every
-> capture the keylog covers. The four `udp 7100 data*.pcapng` files contain no
-> TLS and remain undecryptable. Command payload sections below contain decoded
-> facts.
-
 The Diarkis protocol carries DBTB matchmaking and in-match coordination over
 UDP on port 7100 (plus a port-7102 redirect service on session hosts), using
 the endpoint and key material returned by
