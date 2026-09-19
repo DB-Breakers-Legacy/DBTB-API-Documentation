@@ -171,6 +171,15 @@ response classes recovered from the executable material.
 | 103 | GetLeaderBoard | `leaderboard/get_leaderboard` |
 | 104 | GetLeaderBoardGroup | `leaderboard/get_leaderboard_group_list` |
 
+> [!NOTE]
+> **M3 correction:** the list above is not exhaustive. The string
+> `ServerApiRequestWaitTimePreview` (endpoint `battle/waittime_preview`,
+> `.rdata` `0x141200628`, request vftable `0x1412005d8`, response class
+> `ServerApiResponseWaitTimePreview` vftable `0x1412041d0`) exists in the
+> analysed build but is missing from this table. Earlier notes that called
+> `battle/waittime_preview` "pcap-only / version skew" were wrong — see
+> [waittime_preview.md](../API/battle/waittime_preview.md).
+
 ---
 
 [Back to document map](../README.md)

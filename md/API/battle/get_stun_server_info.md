@@ -67,7 +67,7 @@ The response contained the common user fields and with additional fields.
 The endpoint-specific information includes:
 
 ```text
-unknown  = 0
+resultCode    = 0        (endpoint-specific result code; 0 = success)
 stun_servers  = [
         "dbform-prd-025348-stun01.cosmos.channel.or.jp",
         3478
@@ -79,16 +79,24 @@ stun_servers  = [
 ]
 ```
 
-> [!WARNING]
-> **Warning**
->
-> The first value is currently of unknown purpose.
-> Further research is required to determine its intended use.
+Field confidence (M3 update):
+
+| field | confidence | source |
+| --- | --- | --- |
+| request args `[]` | confirmed (pcap) | `0009_..._req.bin` frame 3975 (`harvest-matchmaking-data`), `009_..._req.bin` (`harvest-once-more`); shared empty-args serializer `FUN_1407b7c30` (Ghidra) |
+| leading `0` = endpoint result code | confirmed (pcap + Ghidra) | constant 0 in both captures; response parser `FUN_1407f76b0` reads element 0 as the whitelisted result code, then the server array via `FUN_1407ce3d0` (rows `[host str, port u32]`, stride `0x30`) |
+| stun host/port pairs | confirmed (pcap + Ghidra) | identical `dbform-prd-025348-stun01/02...:3478` in both captures; row shape confirmed by `FUN_1407ce3d0` |
+
+The 2026-08-18 harvest sample (frame 3975) is identical in shape and values
+to the 2026-05-22 sample above; response size 183 B.
 
 > [!NOTE]
-> **Info**
+> **M3 resolution**
 >
-> https://en.wikipedia.org/wiki/STUN
+> The formerly-unknown leading `0` is the endpoint-specific result code
+> (0 = success) — a convention shared by every `/025348/` response parser
+> (element 0 validated against the error-code whitelist in `FUN_1407fe770`).
+> STUN reference: https://en.wikipedia.org/wiki/STUN
 
 ---
 

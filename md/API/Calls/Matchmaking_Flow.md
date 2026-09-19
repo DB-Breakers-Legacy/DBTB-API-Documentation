@@ -47,7 +47,7 @@ sequenceDiagram
     C->>API: battle/waittime_preview (f8585)
     C->>API: battle/pre_matching_connection (f8758)
     C->>API: battle/save_matching_cache (f8797)
-    C->>MM: cmd 12000/12014 ticket search (desiredRole JSON)
+    C->>MM: cmd 12000/12012 search preferences (desiredRole JSON)
     MM-->>C: cmd 12000/12101+ pushes: roomId
     C->>MM: cmd 12000/12005 join room (sdpData JSON)
     loop every ~2-8 s while queued
@@ -129,10 +129,11 @@ while the client sits in the lobby.
 ```
 
 Immediately after `pre_matching_connection`, on the already-open UDP session:
-cmd 12000 ticket create/search (sub-ID 12014, `desiredRole`/`desiredStageId`
-JSON) then join (sub-ID 12005, `roomId` + `sdpData` JSON); server pushes
-roomId/battleRoomId updates (cmd 12000, status ff). See
-[Structure/Diarkis.md](../../Structure/Diarkis.md#matchmaker-commands).
+cmd 12000 ticket create (sub-ID 12000, profile + `sdpData` JSON) and search
+preferences (sub-ID 12012, `desiredRole`/`desiredStageId` JSON) then join
+(sub-ID 12005, `roomId` + `sdpData` JSON) and complete (sub-ID 12017); server
+pushes roomId/battleRoomId updates (cmd 12000, status ff). See
+[Structure/Diarkis.md](../../Structure/Diarkis.md#ticket-flow-as-observed).
 
 ### Match found (08:53:01, ~4.5 min after queue join)
 
@@ -143,7 +144,8 @@ roomId/battleRoomId updates (cmd 12000, status ff). See
     [UDP] FIN 7102; SYN host:7100          f18111  08:53:02.1  (+0.63 s) real session
 24. player/upload_ghost_player             f18408  (224 B request)
 25. battle/consume_priority_point          f27554  (request carries battle id
-                                                    "<battleId>_<yyyyMMddHHmmss>")
+                                                    "100000000000000002_20000101120000"
+                                                    — doc placeholder, same lengths)
 ```
 
 ### Match (08:53 - 09:05)
@@ -191,13 +193,19 @@ msgpack bodies, e.g. request `6a0f55233e251` -> response `6a0f55236b922` ->
 next request). [API/Session.md](../Session.md) applies unchanged to the
 battle endpoints.
 
-## Endpoints not present in Executable.md
+## Endpoint/executable reconciliation
 
-- `battle/waittime_preview`
-  — pcap-only; heavily polled during queueing; response is a small integer
-  array `[0, 346, 135, 346, 0, 0, 0]` (queue statistics; field meanings TBD).
+- [battle/waittime_preview](../battle/waittime_preview.md#subsec:api_battle_waittime_preview)
+  — initially absent from the Executable.md class list and treated as
+  pcap-only; resolved M3: `ServerApiRequestWaitTimePreview` **is** in the
+  analysed build (`.rdata` `0x141200628`), so the Executable.md table is
+  incomplete, not the endpoint. See
+  [waittime_preview.md](../battle/waittime_preview.md) and the M3 correction
+  note in [Executable.md](../../Reverse_engineering/Executable.md).
 - `adjustment_data_manage/get_version` — called only in the queue-join block;
-  verify against [Executable.md](../../Reverse_engineering/Executable.md).
+  present in the executable as `ServerApiRequestGetOnlineBattleDataVersion`
+  (Executable.md class list row 95). No dedicated endpoint doc (response
+  not harvested in detail).
 
 All other observed endpoints have Executable.md request classes.
 
