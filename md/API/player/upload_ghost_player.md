@@ -102,13 +102,14 @@ Field confidence:
 | --- | --- | --- |
 | request `[1]` = array of player-id strings | confirmed (pcap + Ghidra) | `0054_..._req.bin` frame 18408; serializer `FUN_1407b75b0` |
 | list = other match participants | confirmed (pcap) | ids cross-checked against frames 664783 / 665133 roster |
-| N = 7 (match size minus self) | inferred | single sample; roster correlation |
+| N = 7 (match size minus self) | confirmed (pcap) | eight captured requests, all with N = 7 and the uploader excluded; roster correlation |
 | response `[0]` = endpoint result code | confirmed (pcap + Ghidra) | frame 18408; shared parser `FUN_1407da7b0` |
 
 > [!WARNING]
 > **Warning**
 >
-> Single sample. A `result:0` stub should return `[0]`; the request payload
+> Eight captured requests, all with the same shape (N = 7, uploader excluded).
+> A `result:0` stub should return `[0]`; the request payload
 > can be accepted and ignored (or recorded for a "recently played with"
 > feature).
 

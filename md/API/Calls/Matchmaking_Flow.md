@@ -50,7 +50,7 @@ sequenceDiagram
     C->>MM: cmd 12000/12012 search preferences (desiredRole JSON)
     MM-->>C: cmd 12000/12101+ pushes: roomId
     C->>MM: cmd 12000/12005 join room (sdpData JSON)
-    loop every ~2-8 s while queued
+    loop roughly every 30 s while queued
         C->>API: battle/waittime_preview (f8941 ... f17976)
     end
     MM-->>C: match found: battleRoomId + roster (fragmented, ~3.7 KB)
@@ -124,7 +124,7 @@ while the client sits in the lobby.
 19. adjustment_data_manage/get_version     f8772
 20. battle/save_matching_cache             f8797
 21. season/get_selectable_stage            f8918
-22. battle/waittime_preview                f8941   ... polled every ~2-8 s while queued
+22. battle/waittime_preview                f8941   ... polled roughly every 30 s while queued
     (f11746, f12903, f13757, f14407, f15170, f15951, f17303, f17976)
 ```
 
@@ -159,7 +159,7 @@ No game HTTP calls during the match — all traffic is Diarkis UDP (session host
 26. event/get_schedule_list                f664759
 27. battle/result                          f664783  09:05:17.2  (1337 B req / 3302 B res, rewards tree)
 28. sys/kpi                                f664935  (4154 B telemetry upload)
-29. battle/get_battle_member_result_list   f665133  (per-player results; bin8 fields)
+29. battle/get_battle_member_result_list   f665133  (per-player results)
 30. [lobby refresh suite]                  f665759-666166  (fresh get_diarkis_matching_server_info,
      get_ban_status, adjustment_data_manage/read, commonpurchase, item, currency,
      challenge list, event schedule, update_manner_point, patroller, rival,
@@ -189,8 +189,8 @@ No game HTTP calls during the match — all traffic is Diarkis UDP (session host
 
 **Confirmed**: every response's `session` value is echoed as the next
 request's meta `session` across the whole sequence (visible in harvested
-msgpack bodies, e.g. request `6a0f55233e251` -> response `6a0f55236b922` ->
-next request). [API/Session.md](../Session.md) applies unchanged to the
+msgpack bodies, e.g. request `6a00000000011` -> response `6a00000000012` ->
+next request; token digits here are doc placeholders, same 13-char length). [API/Session.md](../Session.md) applies unchanged to the
 battle endpoints.
 
 ## Endpoint/executable reconciliation

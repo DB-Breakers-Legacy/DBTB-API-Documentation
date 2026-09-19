@@ -35,8 +35,10 @@ endpoint-specific argument:
 ]
 ```
 
-The battle id format is `<raiderPlayerId>_<yyyymmddhhmmss>` — here raider
-`100000000000000002`, match-start timestamp component
+The battle id format is `<leaderUserId>_<yyyymmddhhmmss>` (per the
+[battle/start](start.md) sample; the earlier "raider player id" reading is
+unproven — in this match the leader happened to be the raider) — here
+`100000000000000002` + match-start timestamp component
 (`userId`, `session`, and the battle id are doc placeholders, same lengths as
 the captured values). The same id is used
 by [battle/result](result.md) and
@@ -72,7 +74,7 @@ Field confidence:
 | field | confidence | source |
 | --- | --- | --- |
 | request `[1][0]` = battleId string | confirmed (pcap + Ghidra) | `0056_..._req.bin` frame 27554; serializer `FUN_1407b7b80` (1 string) |
-| battle id composition (raider id + timestamp) | inferred | value matches the match's raider and start time across `result` / `get_battle_member_result_list` |
+| battle id composition (leader id + timestamp) | confirmed for `<leaderUserId>` per the `battle/start` sample; the raider-specific reading is unproven | value matches the match's leader (= raider here) and start time across `start` / `result` / `get_battle_member_result_list` |
 | response layout = `[code]` | inferred (Ghidra) | shared parser `FUN_1407da7b0`; never captured on the wire |
 
 > [!WARNING]

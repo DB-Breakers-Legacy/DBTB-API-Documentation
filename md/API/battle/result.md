@@ -131,7 +131,8 @@ Field confidence:
 > [!WARNING]
 > **Warning**
 >
-> Single sample. The two request tokens are opaque on the wire (base64url of
+> All eight captured `battle/result` responses match the documented 11-element
+> tree. The two request tokens are opaque on the wire (base64url of
 > 512/256-byte binary); per Ghidra they are client-computed JSON result
 > payloads (per-player stats; item/reward usage) with an unidentified
 > encryption/signature layer. A `result:0` stub must accept them

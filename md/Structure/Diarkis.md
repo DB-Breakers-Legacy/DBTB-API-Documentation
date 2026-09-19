@@ -92,9 +92,10 @@ columns 4
 
 **Confirmed.** Client headers are 10 B, server headers 11 B; payloadSize counts
 the payload after the header (excluding the status byte). Status values
-observed: `01` = OK, `04` = BAD (once, cmd 0x000b response), `ff` =
-push/asynchronous (very common; no request being answered). `05` = ERR never
-observed.
+observed: `01` = OK, `04` = BAD (3 envelopes across 2 streams — `matchmaking
+data 3.pcapng` streams 190 and 690 — all cmd 0x000b `"Missing room ID"`
+responses), `ff` = push/asynchronous (very common; no request being
+answered). `05` = ERR never observed.
 
 Maximum envelope payload is ~1300 B per datagram; larger messages are
 fragmented. **Confirmed** fragment layouts, one per direction.
@@ -139,7 +140,7 @@ tables above.)
 Concatenating chunks in index order reassembles a complete inner command
 envelope. **Verified end-to-end** on both directions: client frames
 8816/8817 (inner cmd 0x2ee0, inner payloadSize 1492, decrypts and
-HMAC-validates) and 14 server fragment groups (up to 3716 B, msgSeq 0..13),
+HMAC-validates) and 14 server fragment groups (up to 3727 B, msgSeq 0..13),
 all in the matchmaking session below.
 
 ## Crypto envelope
@@ -167,7 +168,7 @@ table above.)
 
 **Confirmed by full-session decryption** (2026-09-18): every encrypted packet
 in both matchmaking-server and session-host sessions HMAC-validates and
-decrypts to structured plaintext (402-line and 2475-line golden transcripts;
+decrypts to structured plaintext (401-line and 2474-line golden transcripts;
 see Golden transcripts).
 
 - Fixed key and fixed 16-byte IV per session; **no per-packet IV**
@@ -207,8 +208,11 @@ reversed-IP hostname + timestamp):
 | `[1][5]` | HMAC-SHA256 key, over ciphertext only |
 
 The leading `0` in the response data array and the `[1, 1]` tail are constants
-across six decrypted responses (`0` = endpoint result code, resolved M3;
-`[1, 1]` type resolved, semantics open — see Remaining unknowns).
+across the five decrypted `get_diarkis_matching_server_info` responses in the
+baseline capture (the sixth baseline handout, `get_connection_server_info`,
+has no tail; 37 handout responses observed in total with M4) — `0` = endpoint
+result code, resolved M3; `[1, 1]` type resolved, semantics open — see
+Remaining unknowns.
 `get_connection_server_info` uses the same layout minus the `[1, 1]` tail.
 
 unpackmsg.py's labels are swapped: its `udpIV` is the SID and its `sid` is the
@@ -216,7 +220,7 @@ AES IV (`udpKey`/`hashKey` were already correct).
 
 ### Key rotation
 
-**Confirmed: keys are per-session random.** Five
+**Confirmed: keys are per-session random.** The five
 `get_diarkis_matching_server_info` responses in `matchmaking data.pcapng` each
 carry a fresh four-value set, and each new UDP session SYNs with the matching
 fresh SID. Consequence for the custom server: the HTTP endpoint must generate
@@ -224,16 +228,17 @@ each key set at runtime and share it with the UDP server process.
 
 Coverage: sessions in the matchmaking and gameplay captures taken with SSLKEYLOGFILE
 enabled (`matchmaking data.pcapng`, `matchmaking data 3.pcapng`,
-`more matches.pcapng`, `breakers capture*.pcapng` and others) are decryptable
-via the captured TLS keylog (kept in the private evidence vault). The four
+`more matches.pcapng` and others) are decryptable
+via the captured TLS keylog (kept in the private evidence vault). The three
 `udp 7100 data*.pcapng` files contain no TLS handshakes; their sessions remain
 undecryptable unless their keys surface elsewhere.
 
 ## Session bootstrap
 
 **Confirmed** by full decryption (matchmaking server session, frames
-4685-4905, client `192.168.1.10:61805` -> `34.71.237.11:7100`; placeholder
-client address — see note under Golden transcripts):
+4685-4905, client `192.168.1.10:55555` -> `203.0.113.34:7100`; both
+addresses and the port are doc placeholders — see note under Golden
+transcripts):
 
 1. C->S SYN (type 2, 20 B): `00000002` + 16-byte fresh random SID.
 2. S->C bare ACK: `00000004`.
@@ -241,8 +246,8 @@ client address — see note under Golden transcripts):
 
    ```text
    [4-byte token][a0 01 00 00]            8-byte prefix (token varies per packet; a0010000 constant)
-   u32be(19) "203.0.113.100:61805"        STUN/public address (ASCII; doc placeholder)
-   u32be(18) "192.168.1.10:61805"         LAN address (ASCII; doc placeholder)
+   u32be(19) "203.0.113.100:55555"        STUN/public address (ASCII; doc placeholder)
+   u32be(18) "192.168.1.10:55555"         LAN address (ASCII; doc placeholder)
    ```
 
 4. C->S cmd 0x0131 ver 1 (P2P NAT-check), length field 0, plaintext 16 zero
@@ -250,12 +255,13 @@ client address — see note under Golden transcripts):
 5. S->C init answer, cmd 0x0001 ver 0 status 1; 26-byte plaintext:
    `01` + the 4-byte token echoed + `a0 01 00 00` + the client's
    **server-observed** public address as unprefixed ASCII
-   (`"198.51.100.7:61805"` placeholder — note this differs from the client's
+   (`"203.0.113.7:55555"` placeholder — note this differs from the client's
    STUN claim; the server reports what it actually sees).
 6. S->C cmd 0x0131 ver 1 status 1, 1-byte plaintext `02`.
 7. S->C two cmd 0x012f pushes (status ff): ASCII endpoint strings,
-   `3.102.71.34.bc.googleusercontent.com:7100` and the same host on `:7099`
-   (43-byte plaintexts = u16 length + ASCII).
+   `3.113.0.203.bc.googleusercontent.com:7100` and the same host on `:7099`
+   (43-byte plaintexts = u16 length + ASCII; hostname is a same-length doc
+   placeholder).
 8. C->S cmd 0x0130 ver 1, once per 0x012f push — an 11-12 B answer cookie
    under a zero length field (see P2P bootstrap probes); the session
    then carries matchmaking traffic (cmd 0x2ee0) and heartbeats.
@@ -276,14 +282,18 @@ sequenceDiagram
 
 ## Session-host redirect service (port 7102)
 
-**Confirmed** (frames 18096-18110). `get_connection_server_info` hands out the
-session host on **port 7102**; that port runs a redirect probe, not the game
-session:
+**Confirmed** (frames 18096-18110). In the baseline capture,
+`get_connection_server_info` handed out the session host on **port 7102**;
+that port runs a redirect probe, not the game session (the handout port
+varies — 7100 or 7102 across ten captured responses; see "Session-host
+redirect — updated" below):
 
 1. C->S SYN + init (same bootstrap as above, fresh SID from the handout).
 2. C->S cmd 0x55f0 (22000) ver 1 — CSMS-framed request (see MatchMaker).
 3. S->C cmd 0x0002 ver 0 status ff, 49-byte plaintext:
-   `be ef fe ed` + ASCII `"249.110.148.146.bc.googleusercontent.com:7100"`.
+   `be ef fe ed` + ASCII `"249.113.000.203.bc.googleusercontent.com:7100"`
+   (same-length doc placeholder — reversed form of RFC 5737 `203.0.113.249`,
+   leading zero preserves the captured string length).
 4. Client FINs the 7102 probe and immediately SYNs the same host on **7100**
    (same SID — the key set carries over) — the real session.
 
@@ -310,7 +320,7 @@ these packets have NO RUDP datagram header and are NOT encrypted (frames
 
 ```text
 query (C->S, 26 B):   0000 0c0c 00000001 0010 <16-byte session SID>
-answer (S->C, 51 B):  0f0f 0c0c 00000001 0029 "3.102.71.34.bc.googleusercontent.com:7100"
+answer (S->C, 51 B):  0f0f 0c0c 00000001 0029 "3.113.0.203.bc.googleusercontent.com:7100"
 
 [0..1]  flag: 0000 or 0f0f
 [2..3]  command: 0x0c0c (directory)
@@ -319,6 +329,10 @@ answer (S->C, 51 B):  0f0f 0c0c 00000001 0029 "3.102.71.34.bc.googleusercontent.
 [10..]  payload: SID (query) / ASCII "<reversed-ip>.bc.googleusercontent.com:7100" (answer)
 ```
 
+(The answer's hostname above is a same-length doc placeholder — reversed form
+of RFC 5737 `203.0.113.3`; the 51-B total and `0029` = 41 payload length are
+preserved exactly.)
+
 Both sides transmit in **5× identical bursts**; rounds repeat on a ~1.0 s
 cadence. The flag flips after the first exchange (client `0000` -> `0f0f`,
 server `0f0f` -> `0000`). Flag semantics unresolved (cleartext protocol, so
@@ -326,10 +340,11 @@ no key material is involved) — named source: Ghidra, the client-side 0x0c0c
 directory sender/receiver (see Remaining unknowns). The directory answer and the
 cmd 0x012f pushes steer the client to the same peer host. The client probes
 every candidate server while holding a full RUDP session with its chosen one.
-M4 confirmation: the M4 captures add 30 cleartext DIR-probe streams (20
+M4 confirmation: the M4 captures add 30 cleartext DIR-probe streams (20-30
 packets each, no SYN, no encryption) carrying the *sibling* matchmaking
 host's session SID — e.g. `matchmaking data.pcapng` stream 45 (peer
-34.71.102.3:7100, frames 4828-5091) is 30 such probes carrying stream 43's
+`203.0.113.3:7100` — doc placeholder, frames 4828-5091) is 30 such probes
+carrying stream 43's
 SID; it contains no RUDP session and no encrypted traffic at all (NAT /
 endpoint discovery against a second frontend while the real session runs
 elsewhere).
@@ -352,7 +367,7 @@ re-measured across all 48 M4 sessions:
   `"Timeout"` is the only payload ever observed. Never sent by session hosts.
 - ACK piggybacking: client ACK datagrams may carry a tail of extra
   `(3 B LE seq + 04 + 16 B SID)` records — multi-ACKs in one datagram
-  (e.g. f18032 stream 43 acks seq 0x84-0x89 at once).
+  (e.g. f18032 stream 43 acks seq 0x83-0x89 at once (7 sequences)).
 - Teardown: client FIN (type 7, 20 B) -> server bare ACK; sequence
   relationship documented under Datagram header.
 
@@ -501,7 +516,8 @@ Server→client pushes (status ff):
 | 12120 | 0x2f58 | 15 | roomId | room-created / room-closed notice |
 
 12119 caveat (**confirmed**, f18074): its `serverIp:serverPort`
-(`34.28.109.114:80`) is **not** the transport the client actually uses — the
+(`203.0.113.99:80` — doc placeholder for the captured GCP address) is **not**
+the transport the client actually uses — the
 real session host came via HTTPS `battle/get_connection_server_info` + the
 port-7100/7102 redirect. Treat 12119 as "battle ready + connection-room
 binding", not a transport address.
@@ -559,7 +575,7 @@ session-host flows in the M4 captures). Same CSMS framing as 12000.
 |---|---|---|---|---|
 | 22000 | 0x55f0 | c→s | connectionRoomId | connection-room attach (variant of 22001) |
 | 22001 | 0x55f1 | c→s | connectionRoomId | **join connection room** — sent even to the 7102 redirect probe (f18102) |
-| 22002 | 0x55f2 | c→s | roomId, isInterrupted, turnState, turnReason, usertList[7×{userId,holePunchingState,rttAtConnectionCheck,rttAtBattleEnd}] | **end-of-match report / leave** with per-peer RTT (ms). turnState/turnReason: (0,0)+isInterrupted=1 aborted lobby, (1,1), (2,2) completed match (f664642) |
+| 22002 | 0x55f2 | c→s | roomId, isInterrupted, turnState, turnReason, usertList[7×{userId,holePunchingState,rttAtConnectionCheck,rttAtBattleEnd}] | **end-of-match report / leave** with per-peer RTT (ms). turnState/turnReason: (0,0)+isInterrupted=1 aborted lobby, (1,1), (2,2) completed match (`matchmaking data 3.pcapng` stream 1475 f2143392) |
 | 22004 | 0x55f4 | c→s | connectionRoomId + sdpData with prac_update/prac_nocd/prac_rule/prac_bot | practice-flags attach variant |
 | 23000 | 0x59d8 | s→c 01 | status | 22000 answer |
 | 23001 | 0x59d9 | s→c 01 | status, **diarkisRoomId** (52 hex chars) | 22001 answer — the room GUID used by cmds 101/102/103/104/24 (f18117) |
@@ -590,8 +606,9 @@ baseline unless noted):
   `[0:4] u32` + `[4:56]` 52-char ASCII room GUID (the diarkisRoomId). The
   leading u32 matches the first 8 hex digits of the HTTPS `session` token
   parsed as binary (**inferred**, two samples: `aa0000dd` ↔ session
-  `aa0000dd97e2b` in this capture's auth; `bb0000c1` in the second M4
-  capture, f1572718 — token digits shown here are doc placeholders).
+  `aa0000dd97e2b` in this capture's auth; `bb0000c1` in
+  `matchmaking data 3.pcapng`, f1572718 — token digits shown here are doc
+  placeholders).
 - **cmd 102 (0x66)** — attach / leave / member-left:
   - c→s 70 B (f665617): 52-char room GUID + 18-char own uid (leave/detach).
   - s→c status 01: ASCII `"OK"` (f665627).
@@ -600,7 +617,8 @@ baseline unless noted):
   - s→c push 74 B (f649189): `u32be 70` + 52-char GUID + 18-char uid.
 - **cmd 103 (0x67)** — member-ID registration/distribution:
   - c→s 70 B (m34 stream 690 f990967): `01` + 52-char GUID + 16 B own binary
-    member ID (`5ff2c86623cfa70c 47461c01 00000000`).
+    member ID (`aaaaaaaaaaaaaaaa 47461c01 00000000` — 8-byte session prefix is
+    a doc placeholder, same length).
   - s→c push 21 B (f18156): `u32be 17` + 16 B binary member ID + 1 B (`70`).
 - **cmd 11 (0x0b)** — member-list poll: c→s empty (len field 0, 16 zero B ct);
   s→c = N × (`u32be 18` + 18-char uid). The seven dissolution polls on stream
@@ -634,20 +652,24 @@ host. The c→s framing is byte-exact per the client serializer
   [53:57]  u32be 22                 uid-block byte length (1 × 22)
   [57:61]  u32be 18
   [61:79]  18-char target uid
-  [79:95]  16 B binary key   (5ff2c86623cfa70c 47461800 00000000)   ┐
-  [95:111] 16 B binary key   (5ff2c86623cfa70c 03000000 00000000)   ├ 48 B message
-  [111:127] 16 B trailer     (15d0011c01001001 0000000000000000)    ┘
+  [79:95]  16 B binary key   (aaaaaaaaaaaaaaaa 47461800 00000000)   ┐
+  [95:111] 16 B binary key   (aaaaaaaaaaaaaaaa 03000000 00000000)   ├ 48 B message
+  [111:127] 16 B trailer     (bbbb0000bbbb0000 0000000000000000)    ┘
   ```
+  (The 8-byte session prefixes in these keys are doc placeholders, same
+  length; the generation/tail bytes illustrate the field structure.)
 - s→c snapshots (f18145 = 228 B, then f18150/18152/18155 = 212 B):
   `u32be (plen-4)` push prefix (the dispatcher `FUN_140d8d250` splits
   `[u32be len]` sub-payloads via `FUN_140da5610`; Ghidra, inferred), then an
   append-only property bag: a 16-B member-ID header (8-B session prefix +
-  u32le generation + u32 0 — the `c7b169112d509e00-4746<gen>…` family),
+  u32le generation + u32 0 — the `<session prefix>-4746<gen>…` family;
+  concrete prefix digits withheld as per-session identifiers),
   followed by a **fixed 8-slot array of 24-B records** =
   `8-B entity prefix + u64le kind + 8-B value token` (kinds 1/3/4; kind-4
   records are appended as peers' P2P connects complete; empty slots are
   zero-filled). First push carries an extra 8-B head (`u64le 0xff01`) and an
-  8-B tail (`00 2b ef ef 07 00 00 00`, unresolved). The bag is game-level,
+  8-B tail (`00 dd dd dd 07 00 00 00`, unresolved — middle bytes dummied, same
+  length). The bag is game-level,
   opaque to the Diarkis library — the exact game-side record parser was not
   statically located (named source: breakpoint on the cmd-0x68 callback in
   `FUN_140d8d250`; full hex of all four pushes is in the session-host golden
@@ -664,11 +686,13 @@ UNRELIABLE and type-3 DAT datagrams):
   [1:53]   52-char ASCII room GUID
   [53:57]  u32be uid-block byte length (154 = 7 × 22 here)
   [57:…]   N × (u32be 18 + 18-char recipient uid)
-  rest     message: 16 B own binary member ID (…47461600 00000000)
-           + opaque game payload (23-37 B observed; u8 tag-led)
+  rest     message: 16 B own binary member ID (…47461600 00000000; session
+           prefix elided — a per-session identifier)
+           + opaque game payload (1-270 B measured; most common 21/31 B,
+           u8 tag-led)
   ```
 - s→c push: `u32be (plen-4)` + 16 B sender member ID + opaque game payload
-  (25-51 B typical).
+  (2-313 B measured).
 - The server side is a pure relay: payloads are opaque to the protocol docs
   (game-state internals are out of scope; see Remaining unknowns).
 
@@ -685,8 +709,9 @@ UNRELIABLE and type-3 DAT datagrams):
   candidate endpoints (`:7100` and `:7099`).
 - **cmd 304 (0x130)** c→s (f4826, f4839): sent once per 303 push. Length field
   is **0** but the plaintext carries 11-12 B: `u32 random cookie` +
-  `u32le 0xe3` + 3-4 B tail (`e85edf8e e3010000 00000019`;
-  `68037195 e3010000 ffff8f`). (The M2 note calling 304 empty was a decoder
+  `u32le 0xe3` + 3-4 B tail (`aaaa0001 e3010000 00000019`;
+  `bbbb0002 e3010000 ffff8f` — the random cookies are dummies, same length).
+  (The M2 note calling 304 empty was a decoder
   bug — a zero length field does not imply empty content.)
 - **cmd 301 (0x12d, "RoomNotifyP2PConnectCompleted")** c→s, session host
   (f18173-f18238): one per remote peer (7 in an 8-player match) —
@@ -694,8 +719,8 @@ UNRELIABLE and type-3 DAT datagrams):
   bytes are just AES padding (client sender `FUN_140d82d70`; Ghidra,
   inferred).
 - **cmd 302 (0x12e)** relay request: **absent from all 48 decrypted
-  sessions — and absent from the client build itself**: 0x12e is the only
-  unnamed hole in 0x12b-0x131 in the cmd→name table (`FUN_140da1470`), and no
+  sessions — and absent from the client build itself**: 0x12e is unnamed in
+  the cmd→name table (`FUN_140da1470`) — as are 0x12b/0x12c — and no
   sender/handler references it (Ghidra, confirmed-absent). The relay fallback
   lives at the **game level** instead: Corn packets
   PacketDiarkisTURNStartReq/Res/TURNStart/TURNConn (types 29-32, RTTI
@@ -776,11 +801,11 @@ outside the RUDP envelope entirely. Occurrences: `matchmaking data.pcapng`
 
 | type | size | role |
 |---|---|---|
-| 0x01 | 76 B | pair setup (both directions, broadcast to all 7 peers): `u32be 22` + `u32 message id` (constant per broadcast) + 60 B opaque token; recurs sporadically in-match |
+| 0x01 | 76-108 B (92 B dominant) | pair setup (both directions, broadcast to all 7 peers): `u32be 22` + `u32 message id` (constant per broadcast) + 60 B opaque token; recurs sporadically in-match |
 | 0x02 | 60 B | keepalive: `u32be 2` + 48 B opaque token (constant per peer-pair); **every 5.00 s** (min 5.000, max 5.10) |
 | 0x03 | 8 B | keepalive ACK: magic + echoed seq + 03, no body; ~70-130 ms after each type-2 |
-| 0x04 | 92-332 B | reliable game data: `u32be tag` (0x25/0x2e/0x2f/0x11e/…) + opaque blob with a sender-constant 16 B ID at a fixed offset |
-| 0x05 | 8 B | rare 8 B variant (2 samples, stream 1481) — unknown |
+| 0x04 | 76-332 B | reliable game data: `u32be tag` (0x25/0x2e/0x2f/0x11e/…) + opaque blob with a sender-constant 16 B ID at a fixed offset |
+| 0x05 | 8 B | type-4 acknowledgment: one ~21 ms after every type-0x04 reliable message (3091 on stream 164; none on stream 1481) — common; exact semantics open |
 | 0x06 | 33 B | player-state record: `12` + 18-digit ASCII uid + 6 B — **byte-identical inner layout to session-host cmd 19/24 records** |
 
 Cadence (stream 164, 667 s span; cross-checked on stream 1481): type-1/4
@@ -801,7 +826,7 @@ the CSMS c→s u32be 24 is a hardcoded stub of the payload-length slot
 hole; relay fallback is the game-level Corn TURN packet family). Still open:
 
 - **cmd 104 property-bag head/tail** — the first push's extra 8-B head
-  (`u64le 0xff01`) and 8-B tail (`00 2b ef ef 07 00 00 00`), and the
+  (`u64le 0xff01`) and 8-B tail (shown dummied above), and the
   game-side record parser; bytes fully dumped (f18145/18150/18152/18155).
   Source: breakpoint on the cmd-0x68 callback in `FUN_140d8d250`.
 - **cmd 12116 (0x2f54)** — one occurrence; source: future captures / Ghidra MM
@@ -811,7 +836,9 @@ hole; relay fallback is the game-level Corn TURN packet family). Still open:
   (not required for server implementation).
 - **cmd 101 leading u32** — inferred correlation with the HTTPS session token
   (2 samples); source: correlate more auth sessions in future captures.
-- **P2P type 0x05** (8 B variant, 2 samples) — source: future captures.
+- **P2P type 0x05** — the frequent 8-B type-4 acknowledgment (see the P2P type
+  table); its exact semantics beyond "acks a type-0x04 message" are open.
+  Source: future captures / Ghidra P2P code.
 - **`matchmaking data 3.pcapng` UDP stream 17** — undecryptable (handout
   predates keylog coverage); source: none (keys never captured).
 - **Handout `[1,1]` tail** — two u32 (`this+0x168/0x16c`, type resolved M3),
@@ -864,8 +891,14 @@ c→s fragment reassembly). It lives in the private tooling repository for the
 same reason.
 
 Example addresses in this document (`192.168.1.10`, `203.0.113.100`,
-`198.51.100.7`) are RFC 1918 / RFC 5737 documentation placeholders substituted
-for the real captured addresses; 18-digit user IDs, session tokens, the
+`203.0.113.7`, and the `203.0.113.x` server addresses) are RFC 1918 /
+RFC 5737 documentation placeholders substituted
+for the real captured addresses — this includes the server endpoints: the
+concrete GCP IPs and the reversed-IP `*.bc.googleusercontent.com` hostnames
+(which encode those IPs) are all same-length fakes; only the fact that the
+servers are Google Cloud `*.bc.googleusercontent.com` hosts is real. The
+client port `55555` is likewise a dummy. 18-digit user IDs, session tokens,
+binary member-ID session prefixes, the
 battleRoomId, and the roomKey shown above are same-length documentation
 placeholders for the same reason.
 

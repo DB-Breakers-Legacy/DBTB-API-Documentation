@@ -15,7 +15,7 @@
 | 2 | Matchmaking ticket flow | Public Diarkis docs: MatchMaker ticket sequence over commands 218–229 | **Captures** | Never observed. Real flow on custom cmd 12000: 12000 (create) → 12012 (search prefs) → 12005 (join) → 12017 (complete), answered by pushes 12101/12102 → 12105 → 12119. See [Diarkis.md](Diarkis.md#ticket-flow-as-observed). |
 | 3 | Search sub-ID | M2 note: 12014 | **Captures** | 12012 (`0x2eec`) carries `desiredRole`/`desiredStageId`; 12014 never observed. Fixed in Matchmaking_Flow.md during M5. |
 | 4 | Room command range | Public Diarkis docs: Room 100, 105–135 | **Captures** | Not used by this build. Real room commands on the session host: 101/102/103/104/115 plus polls 11/14. See [Diarkis.md](Diarkis.md#room-commands-session-host). |
-| 5 | P2P relay request 302 | Public Diarkis docs define relay-request 302 (`0x012e`) | **Exe + captures** | 302 is the only unnamed hole in the build's cmd→name table `FUN_140da1470` and has zero occurrences in 48 decrypted sessions. Relay fallback is game-level Corn TURN packets (types 29–32, RTTI `0x14172af70`–`0x14172b1c0`). Do not implement a Diarkis-level 302. |
+| 5 | P2P relay request 302 | Public Diarkis docs define relay-request 302 (`0x012e`) | **Exe + captures** | 302 is unnamed in the build's cmd→name table `FUN_140da1470` (as are 0x12b/0x12c) and has zero occurrences in 48 decrypted sessions. Relay fallback is game-level Corn TURN packets (types 29–32, RTTI `0x14172af70`–`0x14172b1c0`). Do not implement a Diarkis-level 302. |
 | 6 | cmd 304 (`0x0130`) payload | M2 decoder/notes: "empty" | **Captures (fixed decoder)** | 11–12 B answer cookies (`u32 cookie` + `u32le 0xe3` + tail) under a length field of 0. A zero length field does not imply empty content — trust the HMAC. |
 | 7 | M2 residual "decrypt fails" | Suspected crypto/key problems | **Captures (fixed decoder)** | All were decoder bugs in the project's private decoder: plen=0 content (cmd 304), 4-B extensions beyond declared length (cmd 24, f18127/f18361), c→s fragment reassembly. Fixed decoder: 45/45 pairable M4 sessions, zero fails. |
 | 8 | CSMS header platform field | Symmetric framing assumed | **Captures** | c→s: ASCII `"09"`; s→c: binary u16be platform of the header UID's player (verified against roster `userData.platform` for all 8 players). See [Diarkis.md](Diarkis.md#custom-command-framing-csms--cmds-12000--22000). |
@@ -48,8 +48,9 @@ Consolidated list; mirrors [Diarkis.md — Remaining unknowns](Diarkis.md#remain
 - **cmd-101 leading u32 correlation** — inferred match with the first 8 hex
   digits of the HTTPS session token (2 samples). Source: correlate more auth
   sessions in future captures.
-- **P2P type 0x05** — rare 8 B variant (2 samples, stream 1481). Source:
-  future captures.
+- **P2P type 0x05 semantics** — the frequent 8-B type-4 acknowledgment (one
+  ~21 ms after every type-0x04 message on stream 164); its payload meaning
+  beyond acknowledgment is open. Source: future captures / Ghidra P2P code.
 - **`matchmaking data 3.pcapng` UDP stream 17** — undecryptable; handout
   predates keylog coverage. Source: none (keys never captured — locked).
 - **`waittime_preview` stat-int semantics** — six u32 stats, unnamed in the

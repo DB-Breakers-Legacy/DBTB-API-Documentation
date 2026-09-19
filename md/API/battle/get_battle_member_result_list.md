@@ -51,11 +51,11 @@ content-length: 3145
 > [!CAUTION]
 > **msgpack decoding gotcha**
 >
-> The player ids are encoded as **bin8** (`0xc4 0x12 ...`), not str —
-> decode with `raw=True` (or `strict_map_key=False` fallback) or the unpack
-> fails with a UTF-8 error. The harvested body also contains a mid-stream
-> duplicate fragment (TCP reassembly overlap in the harvest); take the last
-> complete top-level object from a streaming `Unpacker`.
+> The harvested body contains a mid-stream duplicate fragment (TCP reassembly
+> overlap in the harvest, not protocol) — a plain `unpackb` fails with a UTF-8
+> or "received extra data" error; take the last complete top-level object from
+> a streaming `Unpacker`. (The player ids themselves are ordinary 18-char
+> fixstr, `0xb2` — no `bin8` encoding is involved.)
 
 ```text
 [
@@ -107,7 +107,7 @@ The endpoint-specific information includes:
 [0] resultCode   = 0    (endpoint-specific result code; 0 = success)
 [1] memberList   = [ memberRow x 8 ]   (one row per match participant)
 memberRow = [
-    playerId       = bin8 string, 18 digits,
+    playerId       = str (fixstr, 0xb2), 18 digits,
     rankOrResult   = int  (observed 0,5,6,6,7,7,8,10 — NOT a clean 1..8
                      placement; exact meaning unknown),
     totalScore     = int  (sum-scale match score; the caller's own row,
@@ -139,16 +139,17 @@ Field confidence:
 | request `[1][0]` = battleId | confirmed (pcap + Ghidra) | `0071_..._req.bin` frame 665133; serializer `FUN_1407b7b80` (1 string) |
 | response `[0]` = endpoint result code | confirmed (pcap + Ghidra) | frame 665133; parser `FUN_1407e3830` |
 | row count = 8 (match roster) | confirmed (pcap) | ids match `result` request roster, frame 664783 |
-| playerId as bin8 | confirmed (pcap) | raw bytes `c4 12` prefix, frame 665133 |
-| field `[1]` of row (rank/result) | confirmed layout (pcap); meaning unknown | values -1..14 across 35 response samples don't fit 1–8 placement; mutates -1→8 between polls of one match |
+| field `[1]` of row (rank/result) | confirmed layout (pcap); meaning unknown | values -1..14 across 32 decodable responses (34 harvest index rows; 3 rows have res_bytes=0) don't fit 1–8 placement; mutates -1→8 between polls of one match |
 | totalScore | confirmed (pcap) | own-player 2805 cross-checked vs `result` res frame 664783 |
 | topCategories `[key, points]` × 5 | confirmed (pcap) | frame 665133 |
 
 > [!WARNING]
 > **Warning**
 >
-> The `rankOrResult` integer is still not a clean placement: M4 added 34
-> responses (`matchmaking data 3.pcapng` / `more matches.pcapng` harvests) —
+> The `rankOrResult` integer is still not a clean placement: M4 added 31
+> decodable responses (`matchmaking data 3.pcapng` / `more matches.pcapng`
+> harvests; 32 decodable in total with the baseline sample, from 34 index
+> rows — 3 rows have res_bytes=0) —
 > values range **-1..14**, rows with `-1` have empty category lists and score
 > -1 (no-show/disconnect), and one member's value changed **-1→8 between two
 > polls of the same match** while scores stayed fixed. Consistent with a

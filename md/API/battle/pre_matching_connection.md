@@ -81,7 +81,7 @@ Field confidence:
 | field | value observed | confidence | source |
 | --- | --- | --- | --- |
 | request args | `[]` (empty) | confirmed (pcap) | `0039_..._req.bin` frame 8758, `0093_..._req.bin` frame 668046 (harvest kept in the project's private evidence vault); also confirmed by the shared empty-args serializer `FUN_1407b7c30` (Ghidra) |
-| response `[0]` = result code | `0` in both samples | confirmed (pcap + Ghidra) | frames 8758 / 668046; response parser `FUN_1407dc700` reads `[code, int, int]` and validates code against the error-code whitelist (`FUN_1407fe770`) |
+| response `[0]` = result code | `0` in both samples | confirmed (pcap + Ghidra) | frames 8758 / 668046; response parser `FUN_1407dc700` reads `[code, int, int]` and validates code against the endpoint's error-code handling |
 | response `[1]`, `[2]` | `0` in both samples | confirmed layout (pcap + Ghidra parser `FUN_1407dc700`), meaning unknown | fields stored by offset, no symbolic names in the exe |
 
 > [!WARNING]

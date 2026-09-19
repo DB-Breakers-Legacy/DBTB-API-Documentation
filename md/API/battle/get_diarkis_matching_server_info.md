@@ -122,15 +122,17 @@ Still unknown: the leading `0` and the trailing `[1, 1]` (see M3 update below).
 
 ##### M3 update (2026-08-18 harvest, `matchmaking data.pcapng`)
 
-Five more samples decoded (frames 4603, 665759, 668123, 668145, 668182):
+Five more samples decoded (frames 4603, 665759, 668123, 668145, 668182;
+hostnames below are same-length doc placeholders — reversed forms of RFC 5737
+addresses — since the real reversed-IP names encode the server IPs):
 
 | frame | host | port | key tuple |
 | --- | --- | --- | --- |
-| 4603 | 11.237.71.34.bc.googleusercontent.com | 7100 | fresh |
-| 665759 | 3.102.71.34.bc.googleusercontent.com | 7101 | fresh |
-| 668123 | 3.102.71.34.bc.googleusercontent.com | 7100 | fresh |
-| 668145 | 3.102.71.34.bc.googleusercontent.com | 7100 | fresh |
-| 668182 | 11.237.71.34.bc.googleusercontent.com | 7100 | fresh |
+| 4603 | 34.113.0.203.bc.googleusercontent.com | 7100 | fresh |
+| 665759 | 3.113.0.203.bc.googleusercontent.com | 7101 | fresh |
+| 668123 | 3.113.0.203.bc.googleusercontent.com | 7100 | fresh |
+| 668145 | 3.113.0.203.bc.googleusercontent.com | 7100 | fresh |
+| 668182 | 34.113.0.203.bc.googleusercontent.com | 7100 | fresh |
 
 New facts:
 
@@ -139,12 +141,12 @@ New facts:
   session; each returned a completely different SID/key/IV/mac tuple.
 - **Port is not always 7100**: frame 665759 handed out **7101**. The pool
   has at least two matchmaking ports.
-- The leading `0` and trailing `[1, 1]` are **constant across all six
-  samples** (May 22 + five Aug 18). Whatever they encode did not vary with
-  host, port, or queue state in these captures.
+- The leading `0` and trailing `[1, 1]` are **constant across all seven
+  pre-M4 samples** (May 21 + May 22 + five Aug 18). Whatever they encode did
+  not vary with host, port, or queue state in these captures.
   - leading `0`: **resolved (Ghidra)** — endpoint-specific result code.
     The response parser `FUN_1407e67f0` reads element 0 as an int, validates
-    it against the error-code whitelist (`FUN_1407fe770`) and stores it at
+    it against the endpoint's error-code handling and stores it at
     `this+0x90`; 0 = success. Same convention as every other `/025348/`
     response.
   - `[1, 1]`: **type resolved, semantics unknown (Ghidra)** — two u32

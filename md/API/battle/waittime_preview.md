@@ -14,7 +14,8 @@
 > be extracted; the layout below is pcap-derived.
 
 Polled repeatedly while queued: once before `pre_matching_connection`, then
-every ~2–8 s until match found, and again during post-match re-queue. Twelve
+roughly every 30 s until match found (plus one 3-s follow-up at entry), and
+again during post-match re-queue. Twelve
 request samples and eight response samples captured
 (`matchmaking data.pcapng`, request frames 8585, 8941, 11746, 12903, 13757,
 14407, 15170, 15951, 17303, 17976, 668090, 668410 — responses captured at
@@ -31,7 +32,7 @@ content-length: 90
 ```
 
 The request contained the common user fields and no additional fields
-(all nine samples identical except session token):
+(all twelve request samples identical except session token):
 
 ```text
 [

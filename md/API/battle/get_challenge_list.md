@@ -6,9 +6,10 @@ Request class recovered from the executable: `ServerApiRequestGetChallengeList`
 (see [Executable.md](../../Reverse_engineering/Executable.md), class list row 3).
 
 Returns the daily and weekly challenge lists with per-challenge progress.
-Three full captures: 2026-05-21 (`once more` harvest, frame —, file
-`030_..._res.bin`), 2026-05-22 (original transcription below), and two from
-2026-08-18 (`matchmaking data` harvest, frames 5285 and 665939).
+Four full captures: 2026-05-21 (`once more` harvest, frame —, file
+`030_..._res.bin`), 2026-05-22 (original transcription), and two from
+2026-08-18 (`matchmaking data` harvest, frames 5285 — shown below — and
+665939).
 
 > [!CAUTION]
 > **msgpack decoding gotcha**
@@ -150,7 +151,7 @@ Field confidence:
 
 | field | confidence | source |
 | --- | --- | --- |
-| outer `[0]` = endpoint result code | confirmed (pcap + Ghidra) | frames 5285 / 665939 / `030_..._res.bin`; parsers `FUN_1407e4150` / whitelist `FUN_1407fe770` |
+| outer `[0]` = endpoint result code | confirmed (pcap + Ghidra) | frames 5285 / 665939 / `030_..._res.bin`; parser `FUN_1407e4150` (element 0 validated against the endpoint's error-code handling) |
 | `[1][0]`, `[1][1]` = 1,1 (tab enables) | confirmed layout (pcap + Ghidra container `FUN_1407c8920`); meaning inferred | constant across 3 captures |
 | row shapes (8-field daily, 7-field weekly) | confirmed (pcap + Ghidra `FUN_1407c9080` / `FUN_1407d0d90`) | 3 captures, identical shapes; two distinct parsers |
 | instanceId rotates, objectiveId stable | confirmed (pcap) | cross-capture comparison |

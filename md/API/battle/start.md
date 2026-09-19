@@ -64,7 +64,7 @@ Field confidence:
 | --- | --- | --- |
 | request args = `[u32, [str…]]` | confirmed (pcap) | frame 1003767; serializer `FUN_1407b7780` |
 | req `[0]` = 2, `[1]` = 8-player roster (own id first) | confirmed (pcap) | frame 1003767 |
-| response `[0]` = result code | confirmed (pcap) | frame 1003767 (`0`); whitelist pattern `FUN_1407fe770` |
+| response `[0]` = result code | confirmed (pcap) | frame 1003767 (`0`); validated against the endpoint's error-code handling |
 | response `[1]` = battle id `<leaderUserId>_<timestamp>` | confirmed (pcap) | frame 1003767 |
 | response `[2]`/`[3]` shapes | confirmed (pcap) | frame 1003767 (`["",0,0,0,0]`, `[]`); parser `FUN_1407dbbf0` |
 | req `[0]` mode semantics, res `[2]`/`[3]` content when non-empty | unknown | only one sample; resolve from future captures with non-empty fields |

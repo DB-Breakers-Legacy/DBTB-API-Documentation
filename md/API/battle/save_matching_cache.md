@@ -75,7 +75,7 @@ Field confidence:
 | field | value observed | confidence | source |
 | --- | --- | --- | --- |
 | request args | `[]` (empty) | confirmed (pcap) | `0041_..._req.bin` frame 8797, `0095_..._req.bin` frame 668065; also the shared empty-args serializer `FUN_1407b7c30` (Ghidra) |
-| response `[0]` = result code | `0` in both samples | confirmed (pcap + Ghidra) | frames 8797 / 668065; response parsed by the shared single-code parser `FUN_1407da7b0` (reads element 0, validates against the error-code whitelist `FUN_1407fe770`) |
+| response `[0]` = result code | `0` in both samples | confirmed (pcap + Ghidra) | frames 8797 / 668065; response parsed by the shared single-code parser `FUN_1407da7b0` (reads element 0, validated against the endpoint's error-code handling) |
 
 > [!WARNING]
 > **Warning**
