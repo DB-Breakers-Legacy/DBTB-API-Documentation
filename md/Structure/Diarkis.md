@@ -475,7 +475,8 @@ Notes:
 **Confirmed.** DBTB matchmaking rides this custom command, not the public
 Diarkis ticket flow. All `data` JSON key lists below are complete for the
 observed samples; the full pretty-printed dumps are kept in the project's
-private evidence vault together with the golden transcripts.
+private evidence vault. The golden transcripts are available to collaborators
+at [dev-amto/private-logs](https://github.com/dev-amto/private-logs).
 
 Client→server:
 
@@ -880,9 +881,12 @@ and queue keepalives; session-host flows showing both redirect directions and
 full 367k/500k-packet matches, with the cmd-104 bulk channel elided to the
 first/last 150 messages plus all control traffic). They are **not in this
 repository**: the raw transcripts contain real player IDs and network
-addresses. They are kept in the project's private evidence vault and shared
-with collaborators on request. All protocol facts above are reproduced from
-them, and the frame numbers cited throughout refer to the same captures.
+addresses. **Collaborators can find them in the private repo
+[dev-amto/private-logs](https://github.com/dev-amto/private-logs)
+(`diarkis-transcripts/`) — request access from the team.** The full capture
+files and key material remain in the project's private evidence vault. All
+protocol facts above are reproduced from them, and the frame numbers cited
+throughout refer to the same captures.
 
 A small standalone decoder reproduces the transcripts from a tshark TSV export
 plus the four handout values (SID, AES key, IV, HMAC key); the M4 sessions use
