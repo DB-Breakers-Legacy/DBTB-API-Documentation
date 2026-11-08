@@ -260,4 +260,8 @@ consolidated, with named resolution sources, in
 [Structure/Version_Skew.md](Structure/Version_Skew.md) and
 [Diarkis.md — Remaining unknowns](Structure/Diarkis.md#remaining-unknowns-each-with-a-named-source).
 
-- [Reverse engineering](Reverse_engineering/Executable.md)
+## Reverse engineering
+
+- [Workflow guide](Reverse_engineering/README.md): isolated AppSandbox setup,
+  Ghidra MCP analysis, Wireshark capture, testing, and verification
+- [Recovered executable findings](Reverse_engineering/Executable.md)
